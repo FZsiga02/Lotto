@@ -1,15 +1,15 @@
 package hu.petrik.lotto;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class LottoController {
     @FXML
@@ -32,6 +32,7 @@ public class LottoController {
             sorsoltSzamokLista.clear();
             sorsolGomb.setText("Sorsol");
         }else {
+            veletlenSzamokMegjelenitese();
             int sorsoltSzam = RND.nextInt(90) + 1;
             while (sorsoltSzamokLista.contains(sorsoltSzam)) {
                 sorsoltSzam = RND.nextInt(90) + 1;
@@ -45,6 +46,28 @@ public class LottoController {
                 sorsolGomb.setText("Rendez");
             }
         }
+    }
+
+    private void veletlenSzamokMegjelenitese() {
+        LocalDateTime inditasIdopontja = LocalDateTime.now();
+        sorsolGomb.setDisable(true);
+        Timer myTimer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                Platform.runLater(() ->{
+                    int veletlenSzam = RND.nextInt(90) + 1;
+                    sorsoltSzamLabel.setText(String.valueOf(veletlenSzam));
+                    LocalDateTime aktualisIdopont = LocalDateTime.now();
+                    Duration elteltIdo = Duration.between(inditasIdopontja, aktualisIdopont);
+                    if (elteltIdo.getSeconds() >= 2){
+                        myTimer.cancel();
+                        sorsolGomb.setDisable(false);
+                    }
+                });
+            }
+        };
+        myTimer.schedule(task, 0, 100);
     }
 
     private void szamokFrissiteseListaAlapjan() {
